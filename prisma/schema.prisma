@@ -1,0 +1,108 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL_WITH_SCHEMA")
+}
+
+model Zone {
+  id        String     @id @db.VarChar(100)
+  name      String     @db.VarChar(255)
+  parentId  String?    @db.VarChar(36)
+  level     String     @db.VarChar(50)
+  phone     String?    @db.VarChar(20)
+  address   String?    @db.Text
+  latitude  Float?
+  longitude Float?
+  isActive  Boolean    @default(true)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  users     User[]
+  userRoles UserRole[]
+
+  @@map("zones")
+}
+
+model Role {
+  id           String   @id @db.VarChar(100)
+  name         String   @db.VarChar(100)
+  description  String?  @db.Text
+  defaultRoute String?  @db.VarChar(200)
+  permissions  Json?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  users        User[]
+
+  @@map("roles")
+}
+
+model User {
+  id                    String    @id @default(uuid()) @db.VarChar(36)
+  username              String    @unique @db.VarChar(200)
+  email                 String    @unique @db.VarChar(200)
+  name                  String    @db.VarChar(200)
+  password              String    @db.VarChar(255)
+  phone                 String?   @db.VarChar(20)
+  address               String?   @db.Text
+  isActive              Boolean   @default(true)
+  roleId                String?   @db.VarChar(100)
+  zoneId                String?   @db.VarChar(100)
+  isVerified            Boolean   @default(false)
+  verificationCode      String?   @db.VarChar(20)
+  verificationExpiredAt DateTime?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  role      Role?      @relation(fields: [roleId], references: [id])
+  zone      Zone?      @relation(fields: [zoneId], references: [id])
+  userRoles UserRole[]
+
+  @@map("users")
+}
+
+model UserRole {
+  id        String   @id @default(uuid()) @db.VarChar(36)
+  userId    String   @db.VarChar(36)
+  zoneId    String   @db.VarChar(36)
+  roles     Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id])
+  zone      Zone     @relation(fields: [zoneId], references: [id])
+
+  @@map("userRoles")
+}
+
+model Application {
+  id        String   @id @db.VarChar(100)
+  name      String   @db.VarChar(100)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  Module    Module[]
+
+  @@map("applications")
+}
+
+model Module {
+  id            String   @id @db.VarChar(100)
+  applicationId String   @db.VarChar(100)
+  name          String   @db.VarChar(100)
+  description   String?  @db.Text
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  application Application @relation(fields: [applicationId], references: [id])
+
+  @@map("modules")
+}
+
+model Permission {
+  id        String   @id @db.VarChar(100)
+  name      String   @db.VarChar(100)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("permissions")
+}
