@@ -39,9 +39,9 @@ export interface DatatableFilterDateBetween {
 }
 
 export interface DatatableFilterParams {
-  column: string;
-  value?: string | number | boolean | string[] | number[];
-  operator: string;
+  [key: string]: {
+    [key in string]: string | number | boolean | string[] | number[];
+  };
 }
 
 export interface DatatableParams {
@@ -50,13 +50,14 @@ export interface DatatableParams {
   search?: string;
   page?: number;
   perPage?: number;
-  filter?: DatatableFilterParams[];
+  filter?: DatatableFilterParams;
   filterDateBetween?: DatatableFilterDateBetween;
 }
 
 export interface DatatableSettings {
   searchableColumn?: string[];
   orderableColumn?: string[];
+  filterableColumn?: string[];
   maxLimitPerPage?: number;
   driver?: 'postgresql' | 'mysql';
   debugMode?: boolean;
@@ -261,7 +262,7 @@ export class DatatableService {
       }
     }
 
-    const offset = page - 1;
+    const offset = (page - 1) * perPage;
     const limit = perPage;
 
     this.limitQuery = `
@@ -283,63 +284,57 @@ export class DatatableService {
 
     const filterArrQuery: string[] = [];
 
-    for (const filterColumn of filter) {
-      if (!filterColumn.operator) continue;
-
-      if (typeof operator[filterColumn.operator] == 'undefined') {
-        throw new Error(`Operator ${filterColumn.operator} is not allowed!`);
+    for (const column in filter) {
+      if (!this.settings.filterableColumn) {
+        throw new Error('Filterable column is not configured!');
       }
 
-      if (['isNull', 'isNotNull'].includes(filterColumn.operator)) {
-        filterArrQuery.push(
-          `${this.parseColumn(filterColumn.column)} ${
-            operator[filterColumn.operator]
-          }`,
-        );
-        continue;
-      } else if (
-        ['in', 'notIn'].includes(filterColumn.operator) &&
-        filterColumn.value instanceof Array
-      ) {
-        filterArrQuery.push(
-          `${this.parseColumn(filterColumn.column)} ${
-            operator[filterColumn.operator]
-          } (${filterColumn.value.map((v) => "'" + v + "'").join(', ')})`,
-        );
-        continue;
-      } else if (
-        ['between', 'notBetween'].includes(filterColumn.operator) &&
-        filterColumn.value instanceof Array
-      ) {
-        filterArrQuery.push(
-          `${this.parseColumn(filterColumn.column)} ${
-            operator[filterColumn.operator]
-          } '${filterColumn.value[0]}' AND '${filterColumn.value[1]}'`,
-        );
-        continue;
-      } else if (
-        ['like', 'notLike', 'iLike', 'notILike'].includes(
-          filterColumn.operator,
-        ) &&
-        typeof filterColumn.value === 'string'
-      ) {
-        filterArrQuery.push(
-          `${this.parseColumn(filterColumn.column)} ${
-            operator[filterColumn.operator]
-          } '%${filterColumn.value}%'`,
-        );
-        continue;
-      } else if (
-        typeof filterColumn.value === 'string' ||
-        typeof filterColumn.value === 'number' ||
-        typeof filterColumn.value === 'boolean'
-      ) {
-        filterArrQuery.push(
-          `${this.parseColumn(filterColumn.column)} ${
-            operator[filterColumn.operator]
-          } '${filterColumn.value}'`,
-        );
-        continue;
+      if (!this.settings.filterableColumn.includes(column)) continue;
+
+      for (const op in filter[column]) {
+        if (!Object.keys(operator).includes(op)) {
+          throw new Error(`Operator ${op} is not allowed!`);
+        }
+        const value = filter[column][op];
+
+        if (['isNull', 'isNotNull'].includes(op)) {
+          filterArrQuery.push(`${this.parseColumn(column)} ${operator[op]}`);
+          continue;
+        } else if (['in', 'notIn'].includes(op) && value instanceof Array) {
+          filterArrQuery.push(
+            `${this.parseColumn(column)} ${operator[op]} (${value
+              .map((v) => "'" + v + "'")
+              .join(', ')})`,
+          );
+          continue;
+        } else if (
+          ['between', 'notBetween'].includes(op) &&
+          value instanceof Array
+        ) {
+          filterArrQuery.push(
+            `${this.parseColumn(column)} ${operator[op]} '${value[0]}' AND '${
+              value[1]
+            }'`,
+          );
+          continue;
+        } else if (
+          ['like', 'notLike', 'iLike', 'notILike'].includes(op) &&
+          typeof value === 'string'
+        ) {
+          filterArrQuery.push(
+            `${this.parseColumn(column)} ${operator[op]} '%${value}%'`,
+          );
+          continue;
+        } else if (
+          typeof value === 'string' ||
+          typeof value === 'number' ||
+          typeof value === 'boolean'
+        ) {
+          filterArrQuery.push(
+            `${this.parseColumn(column)} ${operator[op]} '${value}'`,
+          );
+          continue;
+        }
       }
     }
 

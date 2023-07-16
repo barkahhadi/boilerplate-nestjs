@@ -25,7 +25,7 @@ export class DatatableDto implements DatatableParams {
   search?: string = null;
 
   @ApiPropertyOptional()
-  filter?: DatatableFilterParams[];
+  filter?: any;
 
   @ApiPropertyOptional()
   filterDateBetween?: DatatableFilterDateBetween;

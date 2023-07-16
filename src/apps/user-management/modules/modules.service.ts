@@ -3,6 +3,7 @@ import { PrismaService } from '@utils/prisma/prisma.service';
 import { CreateModuleDto } from './dto/create-module.dto';
 import { UpdateModuleDto } from './dto/update-module.dto';
 import {
+  DatatableFilterParams,
   DatatableParams,
   DatatableService,
 } from '@/utils/datatable/datatable.service';
@@ -22,6 +23,7 @@ export class ModulesService {
       {
         orderableColumn: ['id', 'name', 'applicationName', 'createdAt'],
         searchableColumn: ['name'],
+        filterableColumn: ['applicationId'],
       },
       {
         ...params,
@@ -55,9 +57,9 @@ export class ModulesService {
     });
 
     if (moduleIsExists) {
-      throw new BadRequestException([
+      throw new BadRequestException(
         'Module ' + createModuleDto.id + ' already exists',
-      ]);
+      );
     }
 
     return this.prisma.module.create({
@@ -73,9 +75,9 @@ export class ModulesService {
     });
 
     if (moduleIsExists) {
-      throw new BadRequestException([
+      throw new BadRequestException(
         'Module ' + updateModuleDto.id + ' already exists',
-      ]);
+      );
     }
 
     return this.prisma.module.update({
@@ -91,7 +93,7 @@ export class ModulesService {
   async remove(id: string) {
     const module = await this.prisma.module.findUnique({ where: { id } });
     if (!module) {
-      throw new BadRequestException(['Module not found']);
+      throw new BadRequestException('Module not found');
     }
 
     return this.prisma.module.delete({
