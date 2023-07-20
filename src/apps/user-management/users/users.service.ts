@@ -4,14 +4,52 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 
 import * as bcrypt from 'bcrypt';
-import config from '@configs/index';
+import { DataTableService } from '@utils/DataTable/DataTable.service';
+import { DataTableDto } from '@/utils/DataTable/DataTable.dto';
 
 @Injectable()
 export class UsersService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private dataTable: DataTableService,
+  ) {}
 
-  findAll(params?: any) {
-    return true;
+  findAll(params?: DataTableDto) {
+    this.dataTable.fromQuery(
+      `
+      SELECT 
+        u."id", u."username", u."email", u."name", u."isActive", u."roleId", u."officeId", u."createdAt",
+        r."name" as "roleName",
+        o."name" as "officeName"
+      FROM users u LEFT JOIN roles r ON u."roleId" = r."id" 
+      LEFT JOIN offices o ON u."officeId" = o."id"`,
+      {
+        orderableColumn: [
+          'id',
+          'username',
+          'email',
+          'name',
+          'isActive',
+          'createdAt',
+          'roleName',
+          'officeName',
+        ],
+        searchableColumn: [
+          'id',
+          'username',
+          'email',
+          'name',
+          'roleName',
+          'officeName',
+        ],
+        filterableColumn: ['isActive', 'roleId', 'officeId'],
+      },
+      {
+        ...params,
+      },
+    );
+
+    return this.dataTable.execute();
   }
 
   findActiveUsers(id: string) {
@@ -25,10 +63,9 @@ export class UsersService {
           select: {
             id: true,
             name: true,
-            defaultRoute: true,
           },
         },
-        zone: {
+        office: {
           select: {
             id: true,
             name: true,
@@ -61,17 +98,16 @@ export class UsersService {
         email: true,
         name: true,
         roleId: true,
-        zoneId: true,
+        officeId: true,
         isActive: true,
         password: true,
         role: {
           select: {
             id: true,
             name: true,
-            defaultRoute: true,
           },
         },
-        zone: {
+        office: {
           select: {
             id: true,
             name: true,
@@ -90,7 +126,7 @@ export class UsersService {
     });
 
     if (emailIsExists) {
-      throw new BadRequestException(['User with this email already exists']);
+      throw new BadRequestException('User with this email already exists');
     }
 
     const usernameIsExists = await this.prisma.user.findUnique({
@@ -98,30 +134,30 @@ export class UsersService {
     });
 
     if (usernameIsExists) {
-      throw new BadRequestException(['User with this username already exists']);
+      throw new BadRequestException('User with this username already exists');
     }
 
     // Hash password
     createUserDto.password = await bcrypt.hash(createUserDto.password, 10);
 
-    const role = await this.prisma.role.findFirst({
-      where: { id: createUserDto.roleId },
-    });
+    if (createUserDto.roleId) {
+      const role = await this.prisma.role.findFirst({
+        where: { id: createUserDto.roleId },
+      });
 
-    if (!role) {
-      throw new BadRequestException(['Role not found']);
+      if (!role) {
+        throw new BadRequestException('Role not found');
+      }
     }
 
-    const zone = await this.prisma.zone.findFirst({
-      where: { id: 'HO-1' },
-    });
+    if (createUserDto.officeId) {
+      const office = await this.prisma.office.findUnique({
+        where: { id: createUserDto.officeId },
+      });
 
-    if (!zone) {
-      throw new BadRequestException(['Zone not found']);
-    }
-
-    if (role.id != 'admin') {
-      createUserDto.zoneId = zone.id;
+      if (!office) {
+        throw new BadRequestException('Office not found');
+      }
     }
 
     const user = await this.prisma.user.create({
@@ -130,43 +166,7 @@ export class UsersService {
       },
     });
 
-    if (role.id != 'admin') {
-      await this.prisma.userRole.create({
-        data: {
-          userId: user.id,
-          zoneId: zone.id,
-          roles: [role.id],
-        },
-      });
-    }
-
     return user;
-  }
-
-  async setDefaultRoleAndZone(userId: string) {
-    const role = await this.prisma.role.findFirst({
-      where: { id: config.defaultRole },
-    });
-
-    const zone = await this.prisma.zone.findFirst({
-      where: { id: config.defaultZone },
-    });
-
-    await this.prisma.userRole.create({
-      data: {
-        userId,
-        zoneId: zone.id,
-        roles: [role.id],
-      },
-    });
-
-    return await this.prisma.user.update({
-      where: { id: userId },
-      data: {
-        roleId: role.id,
-        zoneId: zone.id,
-      },
-    });
   }
 
   async update(id: string, updateUserDto: UpdateUserDto) {
@@ -176,7 +176,7 @@ export class UsersService {
       });
 
       if (emailIsExists) {
-        throw new BadRequestException(['User with this email already exists']);
+        throw new BadRequestException('User with this email already exists');
       }
     }
 
@@ -186,9 +186,7 @@ export class UsersService {
       });
 
       if (usernameIsExists) {
-        throw new BadRequestException([
-          'User with this username already exists',
-        ]);
+        throw new BadRequestException('User with this username already exists');
       }
     }
 
@@ -202,27 +200,17 @@ export class UsersService {
       });
 
       if (!role) {
-        throw new BadRequestException(['Role not found']);
+        throw new BadRequestException('Role not found');
       }
+    }
 
-      if (role.id != 'admin') {
-        const zone = await this.prisma.zone.findFirst({
-          where: { id: 'HO-1' },
-        });
+    if (updateUserDto.officeId) {
+      const office = await this.prisma.office.findUnique({
+        where: { id: updateUserDto.officeId },
+      });
 
-        // delete all userRole
-        await this.prisma.userRole.deleteMany({
-          where: { userId: id },
-        });
-
-        // create new userRole
-        await this.prisma.userRole.create({
-          data: {
-            userId: id,
-            zoneId: zone.id,
-            roles: [role.id],
-          },
-        });
+      if (!office) {
+        throw new BadRequestException('Office not found');
       }
     }
 
@@ -241,10 +229,6 @@ export class UsersService {
     if (!user) {
       throw new BadRequestException(['User not found']);
     }
-
-    await this.prisma.userRole.deleteMany({
-      where: { userId: id },
-    });
 
     return this.prisma.user.delete({
       where: {
@@ -292,111 +276,5 @@ export class UsersService {
         password: hashedPassword,
       },
     });
-  }
-
-  async getUserRoles(userId: string) {
-    const roles = await this.prisma.role.findMany({
-      select: {
-        id: true,
-        name: true,
-      },
-    });
-
-    const userRoles = await this.prisma.userRole.findMany({
-      select: {
-        id: true,
-        roles: true,
-        zone: {
-          select: {
-            id: true,
-            name: true,
-          },
-        },
-      },
-      where: { userId },
-    });
-
-    return userRoles.map((userRole) => {
-      let roleData = null;
-      if (userRole.roles) {
-        const listRoles = userRole.roles as Array<string>;
-        roleData = roles.filter((role) => listRoles.includes(role.id));
-      }
-
-      return {
-        ...userRole,
-        roles: roleData,
-      };
-    });
-  }
-
-  async switchRole(userId: string, zoneId: string, roleId: string) {
-    const zone = await this.prisma.zone.findFirst({
-      where: { id: zoneId },
-    });
-    const userRole = await this.prisma.userRole.findFirst({
-      where: { userId, zoneId: zone.id },
-    });
-
-    if (!userRole) {
-      throw new BadRequestException(['Role not found']);
-    }
-
-    const role = await this.prisma.role.findFirst({
-      select: {
-        id: true,
-        name: true,
-        defaultRoute: true,
-      },
-      where: { id: roleId },
-    });
-
-    const listRoles = userRole.roles as Array<string>;
-    if (role && listRoles.includes(role.id)) {
-      await this.prisma.user.update({
-        where: { id: userId },
-        data: {
-          roleId,
-          zoneId,
-        },
-      });
-
-      return role;
-    } else {
-      throw new BadRequestException(['Role not found']);
-    }
-  }
-
-  async switchZone(userId: string, zoneId: string): Promise<any> {
-    const userRole = await this.prisma.userRole.findFirst({
-      where: {
-        userId,
-        zone: {
-          id: zoneId,
-        },
-      },
-    });
-
-    if (userRole && userRole.roles) {
-      const role = await this.prisma.role.findFirst({
-        select: {
-          id: true,
-          name: true,
-          defaultRoute: true,
-        },
-        where: { id: userRole.roles[0] },
-      });
-      await this.prisma.user.update({
-        where: { id: userId },
-        data: {
-          zoneId,
-          roleId: userRole.roles[0],
-        },
-      });
-
-      return role;
-    }
-
-    return null;
   }
 }

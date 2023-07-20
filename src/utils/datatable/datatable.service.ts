@@ -2,8 +2,8 @@
  * Author: Barkah Hadi
  * Email: barkah.hadi@gmail.com
  * Last Modified: Fri Jul 14 2023 5:28:58 PM
- * File: datatable.service.ts
- * Description: Service for Generating Datatable
+ * File: DataTable.service.ts
+ * Description: Service for Generating DataTable
  */
 
 import { Inject, Injectable } from '@nestjs/common';
@@ -11,7 +11,7 @@ import { Prisma } from '@prisma/client';
 import { PrismaService } from '@utils/prisma/prisma.service';
 import { type } from 'os';
 
-export type DatatableOrderType = 'asc' | 'desc';
+export type DataTableOrderType = 'asc' | 'desc';
 
 const operator = {
   eq: '=',
@@ -32,29 +32,29 @@ const operator = {
   isNotNull: 'IS NOT NULL',
 };
 
-export interface DatatableFilterDateBetween {
+export interface DataTableFilterDateBetween {
   start: string;
   end: string;
   column: string;
 }
 
-export interface DatatableFilterParams {
+export interface DataTableFilterParams {
   [key: string]: {
     [key in string]: string | number | boolean | string[] | number[];
   };
 }
 
-export interface DatatableParams {
+export interface DataTableParams {
   order?: string;
-  orderType?: DatatableOrderType;
+  orderType?: DataTableOrderType;
   search?: string;
   page?: number;
   perPage?: number;
-  filter?: DatatableFilterParams;
-  filterDateBetween?: DatatableFilterDateBetween;
+  filter?: DataTableFilterParams;
+  filterDateBetween?: DataTableFilterDateBetween;
 }
 
-export interface DatatableSettings {
+export interface DataTableSettings {
   searchableColumn?: string[];
   orderableColumn?: string[];
   filterableColumn?: string[];
@@ -63,18 +63,18 @@ export interface DatatableSettings {
   debugMode?: boolean;
 }
 
-export interface DatatableResult {
+export interface DataTableResult {
   data: any[];
   total: number;
 }
 
-export interface DatatableColumn {
+export interface DataTableColumn {
   name: string;
   alias: string;
 }
 
 @Injectable()
-export class DatatableService {
+export class DataTableService {
   private selectQuery: string;
   private orderQuery: string;
   private searchQuery: string;
@@ -82,18 +82,18 @@ export class DatatableService {
   private filterQuery: string;
   private filterDateBetweenQuery: string;
 
-  private settings: DatatableSettings;
-  private params: DatatableParams;
+  private settings: DataTableSettings;
+  private params: DataTableParams;
 
   private isCustomQueryOrder: boolean;
   private isCustomQuerySearch: boolean;
   private isCustomQueryFilter: boolean;
 
-  private columnMappping: DatatableColumn[];
+  private columnMappping: DataTableColumn[];
 
   constructor(
     private prisma: PrismaService = null,
-    @Inject('DATATABLE_SETTINGS') settings: DatatableSettings = null,
+    @Inject('DataTable_SETTINGS') settings: DataTableSettings = null,
   ) {
     this.selectQuery = '';
     this.orderQuery = '';
@@ -110,8 +110,8 @@ export class DatatableService {
 
   public fromQuery(
     sql: string,
-    settings: DatatableSettings,
-    params: DatatableParams,
+    settings: DataTableSettings,
+    params: DataTableParams,
   ) {
     this.reset();
     this.params = {
@@ -125,14 +125,17 @@ export class DatatableService {
       ...settings,
     };
 
-    sql = sql.replace(/\s\s+/g, '');
+    sql = sql.replace(/\n/g, ' ');
+    sql = sql.replace(/\s\s+/g, ' ').trim();
+    console.log(sql);
+
     this.transformSelectedColumnToArray(sql);
     this.selectQuery = sql;
   }
 
   private transformSelectedColumnToArray(
     selectQuery: string,
-  ): DatatableColumn[] {
+  ): DataTableColumn[] {
     // remove SELECT or select word
     selectQuery = selectQuery.replace(/SELECT/gi, '');
     selectQuery = selectQuery.replace(/select/gi, '');
@@ -143,7 +146,7 @@ export class DatatableService {
 
     const selectQueryArr = selectQuery.split(',');
 
-    const selectQueryArrParsed: DatatableColumn[] = [];
+    const selectQueryArrParsed: DataTableColumn[] = [];
     for (const selectQueryItem of selectQueryArr) {
       const selectQueryItemArr = selectQueryItem.trim().split(' ');
       let name = '';
@@ -412,7 +415,7 @@ export class DatatableService {
     return query;
   }
 
-  public async execute(): Promise<DatatableResult> {
+  public async execute(): Promise<DataTableResult> {
     if (!this.prisma) throw new Error('PrismaService is not defined');
 
     return await this.prisma.$transaction(async (prisma) => {

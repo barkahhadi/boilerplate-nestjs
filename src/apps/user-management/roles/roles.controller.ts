@@ -26,6 +26,8 @@ import {
   Permissions,
 } from '@utils/casl/permissions.guard';
 import { JwtAuthGuard } from '@apps/auth/guards/jwt-auth.guard';
+import { DataTableDto } from '@/utils/DataTable/DataTable.dto';
+import { APPLICATIONS } from '@/constants/applications';
 
 @Controller('roles')
 @ApiTags('Roles')
@@ -35,7 +37,7 @@ export class RolesController {
 
   @Get()
   @UseGuards(JwtAuthGuard, PermissionsGuard)
-  @CheckPermissions([Permissions.READ, 'roles'])
+  @CheckPermissions([Permissions.READ, 'user-management:roles'])
   @ApiOkResponse({
     schema: {
       type: 'object',
@@ -49,8 +51,14 @@ export class RolesController {
       },
     },
   })
-  findAll(@Query() query: any) {
+  findAll(@Query() query: DataTableDto) {
     return this.rolesService.findAll(query);
+  }
+
+  @Get('applications')
+  @UseGuards(JwtAuthGuard)
+  listApplication() {
+    return APPLICATIONS;
   }
 
   @Get('list')
@@ -61,7 +69,7 @@ export class RolesController {
 
   @Get(':id')
   @UseGuards(JwtAuthGuard, PermissionsGuard)
-  @CheckPermissions([Permissions.READ, 'roles'])
+  @CheckPermissions([Permissions.READ, 'user-management:roles'])
   @ApiOkResponse({ type: RoleEntity })
   findOne(@Param('id') id: string) {
     return this.rolesService.findOne(id);
@@ -69,7 +77,7 @@ export class RolesController {
 
   @Post()
   @UseGuards(JwtAuthGuard, PermissionsGuard)
-  @CheckPermissions([Permissions.CREATE, 'roles'])
+  @CheckPermissions([Permissions.CREATE, 'user-management:roles'])
   @ApiCreatedResponse({ type: RoleEntity })
   create(@Body() createRoleDto: CreateRoleDto) {
     return this.rolesService.create(createRoleDto);
@@ -77,7 +85,7 @@ export class RolesController {
 
   @Patch(':id')
   @UseGuards(JwtAuthGuard, PermissionsGuard)
-  @CheckPermissions([Permissions.UPDATE, 'roles'])
+  @CheckPermissions([Permissions.UPDATE, 'user-management:roles'])
   @ApiOkResponse({ type: RoleEntity })
   update(@Param('id') id: string, @Body() updateRoleDto: UpdateRoleDto) {
     return this.rolesService.update(id, updateRoleDto);
@@ -85,7 +93,7 @@ export class RolesController {
 
   @Delete(':id')
   @UseGuards(JwtAuthGuard, PermissionsGuard)
-  @CheckPermissions([Permissions.DELETE, 'roles'])
+  @CheckPermissions([Permissions.DELETE, 'user-management:roles'])
   @ApiOkResponse({ type: RoleEntity })
   remove(@Param('id') id: string) {
     return this.rolesService.remove(id);

@@ -1,13 +1,13 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsNotEmpty, IsBoolean, IsOptional } from 'class-validator';
 import {
-  DatatableParams,
-  DatatableOrderType,
-  DatatableFilterParams,
-  DatatableFilterDateBetween,
-} from './datatable.service';
+  DataTableParams,
+  DataTableOrderType,
+  DataTableFilterParams,
+  DataTableFilterDateBetween,
+} from './DataTable.service';
 
-export class DatatableDto implements DatatableParams {
+export class DataTableDto implements DataTableParams {
   @ApiProperty()
   page: number = 1;
 
@@ -19,7 +19,7 @@ export class DatatableDto implements DatatableParams {
   order?: string = null;
 
   @ApiPropertyOptional()
-  orderType?: DatatableOrderType = null;
+  orderType?: DataTableOrderType = null;
 
   @ApiPropertyOptional()
   search?: string = null;
@@ -28,5 +28,5 @@ export class DatatableDto implements DatatableParams {
   filter?: any;
 
   @ApiPropertyOptional()
-  filterDateBetween?: DatatableFilterDateBetween;
+  filterDateBetween?: DataTableFilterDateBetween;
 }

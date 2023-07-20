@@ -1,18 +1,12 @@
-import { Zone } from '@prisma/client';
+import { Office } from '@prisma/client';
 import { ApiProperty } from '@nestjs/swagger';
 
-export class ZoneEntity implements Zone {
+export class OfficeEntity implements Office {
   @ApiProperty()
   id: string;
 
   @ApiProperty()
   name: string;
-
-  @ApiProperty()
-  parentId: string;
-
-  @ApiProperty()
-  level: string;
 
   @ApiProperty()
   phone: string;

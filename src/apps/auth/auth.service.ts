@@ -45,8 +45,8 @@ export class AuthService {
         name: user.name,
         username: user.username,
         email: user.email,
-        role: user.roleId,
-        zone: user.zoneId,
+        roleId: user.roleId,
+        officeId: user.officeId,
       };
       return {
         token: this.jwtService.sign(payload),
@@ -61,8 +61,8 @@ export class AuthService {
           role: {
             ...user.role,
           },
-          zone: {
-            ...user.zone,
+          office: {
+            ...user.office,
           },
         },
       };
@@ -82,8 +82,8 @@ export class AuthService {
           username: user.username,
           email: user.email,
           name: user.name,
-          role: user.role.id,
-          zone: user.zone.id,
+          roleId: user.role.id,
+          officeId: user.office.id,
         };
         return {
           token: this.jwtService.sign(payload),

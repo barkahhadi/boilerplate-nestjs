@@ -28,6 +28,7 @@ import {
   Permissions,
 } from '@utils/casl/permissions.guard';
 import { JwtAuthGuard } from '@apps/auth/guards/jwt-auth.guard';
+import { DataTableDto } from '@/utils/DataTable/DataTable.dto';
 
 @Controller('users')
 @ApiTags('Users')
@@ -37,7 +38,7 @@ export class UsersController {
 
   @Get()
   @UseGuards(JwtAuthGuard, PermissionsGuard)
-  @CheckPermissions([Permissions.READ, 'users'])
+  @CheckPermissions([Permissions.READ, 'user-management:users'])
   @ApiOkResponse({
     schema: {
       type: 'object',
@@ -51,13 +52,13 @@ export class UsersController {
       },
     },
   })
-  findAll(@Query() query: any) {
+  findAll(@Query() query: DataTableDto) {
     return this.usersService.findAll(query);
   }
 
   @Get(':id')
   @UseGuards(JwtAuthGuard, PermissionsGuard)
-  @CheckPermissions([Permissions.READ, 'users'])
+  @CheckPermissions([Permissions.READ, 'user-management:users'])
   @ApiOkResponse({ type: UserEntity })
   findOne(@Param('id') id: string) {
     return this.usersService.findOne(id);
@@ -65,7 +66,7 @@ export class UsersController {
 
   @Post()
   @UseGuards(JwtAuthGuard, PermissionsGuard)
-  @CheckPermissions([Permissions.CREATE, 'users'])
+  @CheckPermissions([Permissions.CREATE, 'user-management:users'])
   @ApiCreatedResponse({ type: UserEntity })
   create(@Body() createUserDto: CreateUserDto) {
     return this.usersService.create(createUserDto);
@@ -73,7 +74,7 @@ export class UsersController {
 
   @Patch('change-password/:id')
   @UseGuards(JwtAuthGuard, PermissionsGuard)
-  @CheckPermissions([Permissions.UPDATE, 'users'])
+  @CheckPermissions([Permissions.UPDATE, 'user-management:users'])
   @ApiOkResponse({ type: UserEntity })
   updatePassword(@Param('id') id: string, @Body() data: any) {
     if (!data.password) {
@@ -86,7 +87,7 @@ export class UsersController {
 
   @Patch(':id')
   @UseGuards(JwtAuthGuard, PermissionsGuard)
-  @CheckPermissions([Permissions.UPDATE, 'users'])
+  @CheckPermissions([Permissions.UPDATE, 'user-management:users'])
   @ApiOkResponse({ type: UserEntity })
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.usersService.update(id, updateUserDto);
@@ -95,7 +96,7 @@ export class UsersController {
   @Delete(':id')
   @ApiOkResponse({ type: UserEntity })
   @UseGuards(JwtAuthGuard, PermissionsGuard)
-  @CheckPermissions([Permissions.DELETE, 'users'])
+  @CheckPermissions([Permissions.DELETE, 'user-management:users'])
   remove(@Param('id') id: string) {
     return this.usersService.remove(id);
   }

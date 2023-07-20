@@ -29,14 +29,7 @@ export class UserEntity implements User {
   roleId: string | null;
 
   @ApiProperty()
-  zoneId: string | null;
-
-  @ApiProperty()
-  isVerified: boolean;
-
-  verificationCode: string | null;
-
-  verificationExpiredAt: Date | null;
+  officeId: string | null;
 
   @ApiProperty()
   createdAt: Date;

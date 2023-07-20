@@ -44,5 +44,5 @@ export class CreateUserDto {
   roleId: string | null;
 
   @ApiProperty()
-  zoneId: string | null;
+  officeId: string | null;
 }

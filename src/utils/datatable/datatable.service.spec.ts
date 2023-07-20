@@ -1,10 +1,10 @@
-import { DatatableService } from './datatable.service';
+import { DataTableService } from './DataTable.service';
 
-describe('DatatableService', () => {
-  let service: DatatableService;
+describe('DataTableService', () => {
+  let service: DataTableService;
 
   beforeEach(() => {
-    service = new DatatableService();
+    service = new DataTableService();
   });
 
   describe('buildQueryFilterDateBetween', () => {

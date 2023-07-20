@@ -33,7 +33,7 @@ export class PermissionsGuard implements CanActivate {
       ) || [];
     const req = context.switchToHttp().getRequest();
     const user = req.user;
-    const ability = await this.abilityFactory.createForUser(user.role);
+    const ability = await this.abilityFactory.createForUser(user.roleId);
     return requiredPermissions.every((permission) =>
       this.isAllowed(ability, permission),
     );

@@ -1,21 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsBoolean } from 'class-validator';
 
-export class CreateZoneDto {
+export class CreateOfficeDto {
   @ApiProperty()
-  @IsNotEmpty({ message: 'Zone id is required' })
+  @IsNotEmpty({ message: 'Office id is required' })
   id: string;
 
   @ApiProperty()
-  @IsNotEmpty({ message: 'Zone name is required' })
+  @IsNotEmpty({ message: 'Office name is required' })
   name: string;
-
-  @ApiProperty()
-  parentId: string | null;
-
-  @ApiProperty()
-  @IsNotEmpty({ message: 'Zone level is required' })
-  level: string;
 
   @ApiProperty()
   phone: string | null;

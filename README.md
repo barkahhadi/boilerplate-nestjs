@@ -18,7 +18,7 @@ npm install
 Runing application
 
 ```
-npm start run:dev
+npm start dev
 ```
 
 Creating new Module

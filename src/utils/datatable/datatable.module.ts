@@ -1,25 +1,25 @@
 import { Global, Module } from '@nestjs/common';
 import { PrismaModule } from '@utils/prisma/prisma.module';
-import { DatatableService, DatatableSettings } from './datatable.service';
+import { DataTableService, DataTableSettings } from './DataTable.service';
 
 @Global()
 @Module({
-  providers: [DatatableService],
-  exports: [DatatableService],
+  providers: [DataTableService],
+  exports: [DataTableService],
   imports: [PrismaModule],
 })
-export class DatatableModule {
-  static forRoot(settings: DatatableSettings) {
+export class DataTableModule {
+  static forRoot(settings: DataTableSettings) {
     return {
-      module: DatatableModule,
+      module: DataTableModule,
       providers: [
         {
-          provide: 'DATATABLE_SETTINGS',
+          provide: 'DataTable_SETTINGS',
           useValue: settings,
         },
-        DatatableService,
+        DataTableService,
       ],
-      exports: [DatatableService],
+      exports: [DataTableService],
     };
   }
 }

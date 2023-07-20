@@ -27,28 +27,6 @@ export class MeController {
     return this.usersService.getAllPermissions(req.user.role);
   }
 
-  @Get('/roles')
-  @UseGuards(JwtAuthGuard)
-  getRoles(@Request() req) {
-    return this.usersService.getUserRoles(req.user.id);
-  }
-
-  @Get('/switch-zone/:zoneCode')
-  @UseGuards(JwtAuthGuard)
-  async switchZone(@Request() req, @Param('zoneCode') zoneCode: string) {
-    return await this.usersService.switchZone(req.user.id, zoneCode);
-  }
-
-  @Get('/switch-role/:roleSlug')
-  @UseGuards(JwtAuthGuard)
-  async switchRole(@Request() req, @Param('roleSlug') roleSlug: string) {
-    return await this.usersService.switchRole(
-      req.user.id,
-      req.user.zone,
-      roleSlug,
-    );
-  }
-
   @Get()
   @UseGuards(JwtAuthGuard)
   @ApiOkResponse({

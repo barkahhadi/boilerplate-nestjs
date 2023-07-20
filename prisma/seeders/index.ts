@@ -3,30 +3,6 @@ import * as bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
 
-// Permission seeders
-const permissionSeeder = async (tx) => {
-  await tx.permission.createMany({
-    data: [
-      {
-        id: 'create',
-        name: 'Create',
-      },
-      {
-        id: 'read',
-        name: 'Read',
-      },
-      {
-        id: 'update',
-        name: 'Update',
-      },
-      {
-        id: 'delete',
-        name: 'Delete',
-      },
-    ],
-  });
-};
-
 // Role seeders
 const roleSeeder = async (tx) => {
   const listOfPermissions = [
@@ -91,90 +67,13 @@ const roleSeeder = async (tx) => {
 };
 
 // Zone seeders
-const zoneSeeder = async (tx) => {
-  await tx.zone.createMany({
+const officeSeeder = async (tx) => {
+  await tx.office.createMany({
     data: [
       {
         id: 'HO-1',
         name: 'Head Office',
-        level: 'HO',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-    ],
-  });
-};
-
-// Application seeders
-const applicationSeeder = async (tx) => {
-  await tx.application.createMany({
-    data: [
-      {
-        id: 'dashboard',
-        name: 'Dashboard',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-      {
-        id: 'user-management',
-        name: 'User Management',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-    ],
-  });
-};
-
-// Module seeders
-const moduleSeeder = async (tx) => {
-  await tx.module.createMany({
-    data: [
-      {
-        id: 'dashboard',
-        applicationId: 'dashboard',
-        name: 'Dashboard',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-      {
-        id: 'users',
-        applicationId: 'user-management',
-        name: 'Users',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-      {
-        id: 'user-roles',
-        applicationId: 'user-management',
-        name: 'User Roles',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-      {
-        id: 'roles',
-        applicationId: 'user-management',
-        name: 'Roles',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-      {
-        id: 'modules',
-        applicationId: 'user-management',
-        name: 'Modules',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-      {
-        id: 'permissions',
-        applicationId: 'user-management',
-        name: 'Permissions',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-      {
-        id: 'zones',
-        applicationId: 'user-management',
-        name: 'Zones',
+        isActive: true,
         createdAt: new Date(),
         updatedAt: new Date(),
       },
@@ -192,30 +91,7 @@ const userSeeder = async (tx) => {
         password: password,
         name: 'Administrator',
         roleId: 'admin',
-        zoneId: 'HO-1',
-      },
-    ],
-  });
-};
-
-const userRoleSeeder = async (tx) => {
-  const userAdmin = await tx.user.findUnique({
-    where: {
-      username: 'admin',
-    },
-  });
-  const zoneHo = await tx.zone.findUnique({
-    where: {
-      id: 'HO-1',
-    },
-  });
-
-  await tx.userRole.createMany({
-    data: [
-      {
-        userId: userAdmin.id,
-        zoneId: zoneHo.id,
-        roles: ['admin'],
+        officeId: 'HO-1',
       },
     ],
   });
@@ -223,13 +99,9 @@ const userRoleSeeder = async (tx) => {
 
 async function main() {
   await prisma.$transaction(async (tx) => {
-    await permissionSeeder(tx);
     await roleSeeder(tx);
-    await zoneSeeder(tx);
-    await applicationSeeder(tx);
-    await moduleSeeder(tx);
+    await officeSeeder(tx);
     await userSeeder(tx);
-    await userRoleSeeder(tx);
   });
 }
 
