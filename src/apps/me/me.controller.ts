@@ -21,12 +21,6 @@ import { ChangePasswordDto } from '@apps/user-management/users/dto/change-passwo
 export class MeController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Get('/permissions')
-  @UseGuards(JwtAuthGuard)
-  getPermissions(@Request() req) {
-    return this.usersService.getAllPermissions(req.user.role);
-  }
-
   @Get()
   @UseGuards(JwtAuthGuard)
   @ApiOkResponse({
@@ -46,11 +40,20 @@ export class MeController {
           code: 'string',
           name: 'string',
         },
+        permissions: {},
       },
     },
   })
-  getProfile(@Request() req) {
-    return this.usersService.findActiveUsers(req.user.id);
+  async getProfile(@Request() req) {
+    const data = await this.usersService.findActiveUsers(req.user.id);
+    const permissions = await this.usersService.getAllPermissions(
+      req.user.role,
+    );
+
+    return {
+      ...data,
+      permissions,
+    };
   }
 
   @Patch('/change-password')

@@ -40,6 +40,7 @@ export const APPLICATIONS: Application[] = [
           Permissions.READ,
           Permissions.UPDATE,
           Permissions.DELETE,
+          Permissions.RESET_PASSWORD,
         ],
       },
       {

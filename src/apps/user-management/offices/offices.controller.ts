@@ -8,6 +8,7 @@ import {
   Delete,
   Query,
   UseGuards,
+  BadRequestException,
 } from '@nestjs/common';
 import { OfficesService } from './offices.service';
 import { CreateOfficeDto } from './dto/create-office.dto';

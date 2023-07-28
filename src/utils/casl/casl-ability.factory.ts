@@ -21,7 +21,7 @@ export class CaslAbilityFactory {
     const caslPermissions: CaslPermission[] = [];
     dbPermissions.forEach((p: AppPermission) => {
       const application = p.application;
-      p.access.forEach((a) => {
+      p.ability.forEach((a) => {
         const module = a.module;
         const listPermission = a.permissions;
 

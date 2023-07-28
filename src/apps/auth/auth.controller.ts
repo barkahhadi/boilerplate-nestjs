@@ -21,11 +21,21 @@ import { LocalAuthGuard } from './guards/local-auth.guard';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { ApiTags } from '@nestjs/swagger';
 import { AuthRefreshDto } from './dto/auth-refresh.dto';
+import { UsersService } from '../user-management/users/users.service';
 
 @Controller('auth')
 @ApiTags('Auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly usersService: UsersService,
+  ) {}
+
+  @Get('permissions')
+  @UseGuards(JwtAuthGuard)
+  getPermissions(@Request() req) {
+    return this.usersService.getAllPermissions(req.user.roleId);
+  }
 
   @UseGuards(LocalAuthGuard)
   @Post('login')
@@ -36,8 +46,8 @@ export class AuthController {
   }
 
   @Post('refresh')
-  refresh(@Body() authRefreshDto: AuthRefreshDto, @Res() res) {
-    const refreshData = this.authService.refresh(authRefreshDto.token);
+  async refresh(@Body() authRefreshDto: AuthRefreshDto, @Res() res) {
+    const refreshData = await this.authService.refresh(authRefreshDto.token);
     return res.status(200).json(refreshData);
   }
 

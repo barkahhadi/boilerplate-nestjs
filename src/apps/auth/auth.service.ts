@@ -85,6 +85,7 @@ export class AuthService {
           roleId: user.role.id,
           officeId: user.office.id,
         };
+
         return {
           token: this.jwtService.sign(payload),
           refreshToken: this.jwtService.sign(payload, {

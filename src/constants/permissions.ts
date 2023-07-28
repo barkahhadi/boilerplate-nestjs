@@ -3,4 +3,5 @@ export enum Permissions {
   READ = 'read',
   UPDATE = 'update',
   DELETE = 'delete',
+  RESET_PASSWORD = 'reset-password',
 }

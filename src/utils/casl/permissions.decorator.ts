@@ -21,7 +21,7 @@ export interface ModulePermission {
 
 export interface AppPermission {
   application: string;
-  access: Array<ModulePermission>;
+  ability: Array<ModulePermission>;
 }
 export type RequiredPermission = [Permissions, PermissionObjectType];
 export const PERMISSION_CHECKER_KEY = 'permission_checker_params_key';

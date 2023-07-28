@@ -8,7 +8,7 @@ const roleSeeder = async (tx) => {
   const listOfPermissions = [
     {
       application: 'dashboard',
-      access: [
+      ability: [
         {
           module: 'dashboard',
           permissions: ['read'],
@@ -17,7 +17,7 @@ const roleSeeder = async (tx) => {
     },
     {
       application: 'user-management',
-      access: [
+      ability: [
         {
           module: 'users',
           permissions: ['create', 'read', 'update', 'delete'],
@@ -52,14 +52,12 @@ const roleSeeder = async (tx) => {
         id: 'admin',
         name: 'Admin',
         description: 'Administrator',
-        defaultRoute: '/',
         permissions: listOfPermissions,
       },
       {
         id: 'public',
         name: 'Public',
         description: 'Public',
-        defaultRoute: '/',
         permissions: [],
       },
     ],

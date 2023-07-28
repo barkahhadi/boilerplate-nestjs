@@ -31,7 +31,7 @@ export class OfficesService {
   async findOne(id: string) {
     const office = await this.prisma.office.findUnique({ where: { id } });
     if (!office) {
-      throw new BadRequestException(['Office not found']);
+      throw new BadRequestException('Office not found');
     }
     return office;
   }
@@ -69,9 +69,9 @@ export class OfficesService {
     });
 
     if (officeIsExists) {
-      throw new BadRequestException([
+      throw new BadRequestException(
         'Office ' + updateOfficeDto.id + ' already exists',
-      ]);
+      );
     }
 
     return this.prisma.office.update({
@@ -87,7 +87,7 @@ export class OfficesService {
   async remove(id: string) {
     const office = await this.prisma.office.findUnique({ where: { id } });
     if (!office) {
-      throw new BadRequestException(['Office not found']);
+      throw new BadRequestException('Office not found');
     }
     return this.prisma.office.delete({
       where: {

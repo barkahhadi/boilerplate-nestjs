@@ -27,6 +27,7 @@ async function bootstrap() {
     const config = new DocumentBuilder()
       .setTitle(configs.appName)
       .setDescription(configs.appDescription)
+      .setVersion(configs.appVersion)
       .addBearerAuth(
         { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
         'JWT',
@@ -34,8 +35,7 @@ async function bootstrap() {
       .build();
     const document = SwaggerModule.createDocument(app, config);
     // Import to postman
-    //fs.writeFileSync('./swagger-spec.json', JSON.stringify(document));
-    SwaggerModule.setup('swagger-docs', app, document, {
+    SwaggerModule.setup('swagger', app, document, {
       customCss: '.topbar{display: none !important;}',
       swaggerOptions: {
         tagsSorter: 'alpha',
