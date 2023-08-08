@@ -35,5 +35,10 @@
     "tests/**/*.vue",
     "jest.config.ts"
   ],
-  "exclude": ["node_modules", "dist", "src/utils/minio-client/**/*.ts"]
+  "exclude": [
+    "node_modules",
+    "dist",
+    "src/utils/minio-client/**/*.ts",
+    "src/utils/kafka/**/*.ts"
+  ]
 }

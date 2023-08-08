@@ -5,6 +5,7 @@
     "test",
     "dist",
     "**/*spec.ts",
-    "src/utils/minio-client/**/*.ts" // ignore minio-client
+    "src/utils/minio-client/**/*.ts", // ignore minio-client
+    "src/utils/kafka/**/*.ts" // ignore kafka
   ]
 }
