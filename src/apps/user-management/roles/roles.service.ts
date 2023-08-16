@@ -2,8 +2,8 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from '@utils/prisma/prisma.service';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
-import { DataTableDto } from '@/utils/DataTable/DataTable.dto';
-import { DataTableService } from '@/utils/DataTable/DataTable.service';
+import { DataTableDto } from '@/utils/datatable/datatable.dto';
+import { DataTableService } from '@/utils/datatable/datatable.service';
 
 @Injectable()
 export class RolesService {
@@ -13,9 +13,8 @@ export class RolesService {
   ) {}
 
   findAll(params?: DataTableDto) {
-    this.dataTable.fromQuery(
-      `
-      SELECT r."id", r."name", r."description", r."createdAt" FROM roles r`,
+    return this.dataTable.executeQuery(
+      `SELECT r."id", r."name", r."description", r."createdAt" FROM roles r`,
       {
         orderableColumn: ['id', 'name', 'description', 'createdAt'],
         searchableColumn: ['id', 'name', 'description'],
@@ -24,8 +23,6 @@ export class RolesService {
         ...params,
       },
     );
-
-    return this.dataTable.execute();
   }
 
   list() {

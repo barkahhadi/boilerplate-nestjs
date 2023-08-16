@@ -42,7 +42,4 @@ export class CreateUserDto {
   @ApiProperty()
   @IsNotEmpty({ message: 'Role is required' })
   roleId: string | null;
-
-  @ApiProperty()
-  officeId: string | null;
 }

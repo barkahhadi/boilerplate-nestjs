@@ -90,11 +90,11 @@
     "coverageDirectory": "../coverage",
     "testEnvironment": "node",
     "moduleNameMapper": {
-      "^@/(.*)$": "<rootDir>/src/$1",
-      "^@apps/(.*)$": "<rootDir>/src/apps/$1",
-      "^@utils/(.*)$": "<rootDir>/src/utils/$1",
-      "^@configs/(.*)$": "<rootDir>/src/configs/$1",
-      "^@constants/(.*)$": "<rootDir>/src/constants/$1"
+      "^@/(.*)$": "<rootDir>/$1",
+      "^@apps/(.*)$": "<rootDir>/apps/$1",
+      "^@utils/(.*)$": "<rootDir>/utils/$1",
+      "^@configs/(.*)$": "<rootDir>/configs/$1",
+      "^@constants/(.*)$": "<rootDir>/constants/$1"
     }
   }
 }

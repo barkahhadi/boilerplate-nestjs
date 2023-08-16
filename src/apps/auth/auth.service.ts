@@ -23,30 +23,28 @@ export class AuthService {
   }
 
   async login(authLoginDto: AuthLoginDto) {
+    const user = await this.usersService.findByUsernameOrEmail(
+      authLoginDto.username,
+    );
+
+    if (!user) {
+      throw new BadRequestException('Invalid username or password');
+    }
+
+    if (!user.isActive) {
+      throw new BadRequestException('User is not active');
+    }
+
+    if (!user.roleId) {
+      throw new BadRequestException('User has no role');
+    }
     try {
-      const user = await this.usersService.findByUsernameOrEmail(
-        authLoginDto.username,
-      );
-
-      if (!user) {
-        return new BadRequestException('Invalid username or password');
-      }
-
-      if (!user.isActive) {
-        return new BadRequestException('User is not active');
-      }
-
-      if (!user.roleId) {
-        return new BadRequestException('User has no role');
-      }
-
       const payload = {
         id: user.id,
         name: user.name,
         username: user.username,
         email: user.email,
         roleId: user.roleId,
-        officeId: user.officeId,
       };
       return {
         token: this.jwtService.sign(payload),
@@ -61,13 +59,10 @@ export class AuthService {
           role: {
             ...user.role,
           },
-          office: {
-            ...user.office,
-          },
         },
       };
     } catch (err) {
-      return new BadRequestException('Invalid username or password');
+      throw new BadRequestException('Something went wrong');
     }
   }
 
@@ -83,7 +78,6 @@ export class AuthService {
           email: user.email,
           name: user.name,
           roleId: user.role.id,
-          officeId: user.office.id,
         };
 
         return {

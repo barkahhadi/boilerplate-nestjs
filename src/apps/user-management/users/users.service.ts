@@ -4,8 +4,8 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 
 import * as bcrypt from 'bcrypt';
-import { DataTableService } from '@utils/DataTable/DataTable.service';
-import { DataTableDto } from '@/utils/DataTable/DataTable.dto';
+import { DataTableService } from '@utils/datatable/datatable.service';
+import { DataTableDto } from '@/utils/datatable/datatable.dto';
 
 @Injectable()
 export class UsersService {
@@ -15,14 +15,12 @@ export class UsersService {
   ) {}
 
   findAll(params?: DataTableDto) {
-    this.dataTable.fromQuery(
+    return this.dataTable.executeQuery(
       `
       SELECT 
-        u."id", u."username", u."email", u."name", u."isActive", u."roleId", u."officeId", u."createdAt",
-        r."name" as "roleName",
-        o."name" as "officeName"
-      FROM users u LEFT JOIN roles r ON u."roleId" = r."id" 
-      LEFT JOIN offices o ON u."officeId" = o."id"`,
+        u."id", u."username", u."email", u."name", u."isActive", u."roleId", u."createdAt",
+        r."name" as "roleName"
+      FROM users u LEFT JOIN roles r ON u."roleId" = r."id"`,
       {
         orderableColumn: [
           'id',
@@ -32,24 +30,14 @@ export class UsersService {
           'isActive',
           'createdAt',
           'roleName',
-          'officeName',
         ],
-        searchableColumn: [
-          'id',
-          'username',
-          'email',
-          'name',
-          'roleName',
-          'officeName',
-        ],
-        filterableColumn: ['isActive', 'roleId', 'officeId'],
+        searchableColumn: ['id', 'username', 'email', 'name', 'roleName'],
+        filterableColumn: ['isActive', 'roleId'],
       },
       {
         ...params,
       },
     );
-
-    return this.dataTable.execute();
   }
 
   findActiveUsers(id: string) {
@@ -60,12 +48,6 @@ export class UsersService {
         email: true,
         name: true,
         role: {
-          select: {
-            id: true,
-            name: true,
-          },
-        },
-        office: {
           select: {
             id: true,
             name: true,
@@ -85,7 +67,7 @@ export class UsersService {
     }
 
     if (!user) {
-      throw new BadRequestException(['User not found']);
+      throw new BadRequestException('User not found');
     }
     return user;
   }
@@ -98,16 +80,9 @@ export class UsersService {
         email: true,
         name: true,
         roleId: true,
-        officeId: true,
         isActive: true,
         password: true,
         role: {
-          select: {
-            id: true,
-            name: true,
-          },
-        },
-        office: {
           select: {
             id: true,
             name: true,
@@ -147,16 +122,6 @@ export class UsersService {
 
       if (!role) {
         throw new BadRequestException('Role not found');
-      }
-    }
-
-    if (createUserDto.officeId) {
-      const office = await this.prisma.office.findUnique({
-        where: { id: createUserDto.officeId },
-      });
-
-      if (!office) {
-        throw new BadRequestException('Office not found');
       }
     }
 
@@ -204,16 +169,6 @@ export class UsersService {
       }
     }
 
-    if (updateUserDto.officeId) {
-      const office = await this.prisma.office.findUnique({
-        where: { id: updateUserDto.officeId },
-      });
-
-      if (!office) {
-        throw new BadRequestException('Office not found');
-      }
-    }
-
     return this.prisma.user.update({
       where: {
         id,
@@ -227,7 +182,7 @@ export class UsersService {
   async remove(id: string) {
     const user = await this.prisma.user.findUnique({ where: { id } });
     if (!user) {
-      throw new BadRequestException(['User not found']);
+      throw new BadRequestException('User not found');
     }
 
     return this.prisma.user.delete({
@@ -259,13 +214,13 @@ export class UsersService {
     });
 
     if (!user) {
-      throw new BadRequestException(['User not found']);
+      throw new BadRequestException('User not found');
     }
 
     const isPasswordMatch = await bcrypt.compare(oldPassword, user.password);
 
     if (!isPasswordMatch) {
-      throw new BadRequestException(['Old password is incorrect']);
+      throw new BadRequestException('Password is incorrect');
     }
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);

@@ -127,10 +127,18 @@ export class DataTableService {
 
     sql = sql.replace(/\n/g, ' ');
     sql = sql.replace(/\s\s+/g, ' ').trim();
-    console.log(sql);
 
     this.transformSelectedColumnToArray(sql);
     this.selectQuery = sql;
+  }
+
+  public executeQuery(
+    sql: string,
+    settings: DataTableSettings,
+    params: DataTableParams,
+  ): Promise<DataTableResult> {
+    this.fromQuery(sql, settings, params);
+    return this.execute();
   }
 
   private transformSelectedColumnToArray(
@@ -192,9 +200,9 @@ export class DataTableService {
 
     if (!this.settings.orderableColumn.includes(order)) return '';
 
-    this.orderQuery = `
-      ORDER BY ${this.parseColumn(order)} ${orderType.toUpperCase()}
-    `;
+    this.orderQuery = ` ORDER BY ${this.parseColumn(
+      order,
+    )} ${orderType.toUpperCase()}`;
   }
 
   private parseColumn(strColumn) {
@@ -268,9 +276,7 @@ export class DataTableService {
     const offset = (page - 1) * perPage;
     const limit = perPage;
 
-    this.limitQuery = `
-      LIMIT ${limit} OFFSET ${offset}
-    `;
+    this.limitQuery = ` LIMIT ${limit} OFFSET ${offset}`;
   }
 
   public setQueryFilter(sql: string) {
@@ -351,11 +357,12 @@ export class DataTableService {
 
     if (!filterDateBetween) return '';
 
-    this.filterDateBetweenQuery = `
-        ${this.parseColumn(filterDateBetween.column)} BETWEEN '${
-      filterDateBetween.start
-    }' AND '${filterDateBetween.end}'
-      `;
+    if (!this.settings.filterableColumn.includes(filterDateBetween.column))
+      return '';
+
+    this.filterDateBetweenQuery = `${this.parseColumn(
+      filterDateBetween.column,
+    )} BETWEEN '${filterDateBetween.start}' AND '${filterDateBetween.end}'`;
   }
 
   private buildQuery(): string {
@@ -387,7 +394,7 @@ export class DataTableService {
     query += this.orderQuery;
     query += this.limitQuery;
 
-    return query;
+    return query.replace(/\n/g, ' ').trim();
   }
 
   private removeSelectQueryAndReplaceWithCount() {
@@ -412,7 +419,7 @@ export class DataTableService {
     }
     query += this.filterDateBetweenQuery;
 
-    return query;
+    return query.trim();
   }
 
   public async execute(): Promise<DataTableResult> {

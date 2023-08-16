@@ -64,21 +64,6 @@ const roleSeeder = async (tx) => {
   });
 };
 
-// Zone seeders
-const officeSeeder = async (tx) => {
-  await tx.office.createMany({
-    data: [
-      {
-        id: 'HO-1',
-        name: 'Head Office',
-        isActive: true,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-    ],
-  });
-};
-
 const userSeeder = async (tx) => {
   const password = await bcrypt.hash('admin', 10);
   await tx.user.createMany({
@@ -89,7 +74,6 @@ const userSeeder = async (tx) => {
         password: password,
         name: 'Administrator',
         roleId: 'admin',
-        officeId: 'HO-1',
       },
     ],
   });
@@ -98,7 +82,6 @@ const userSeeder = async (tx) => {
 async function main() {
   await prisma.$transaction(async (tx) => {
     await roleSeeder(tx);
-    await officeSeeder(tx);
     await userSeeder(tx);
   });
 }

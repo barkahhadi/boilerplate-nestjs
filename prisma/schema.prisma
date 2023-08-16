@@ -7,21 +7,6 @@ datasource db {
   url      = env("DATABASE_URL_WITH_SCHEMA")
 }
 
-model Office {
-  id        String   @id @db.VarChar(100)
-  name      String   @db.VarChar(255)
-  phone     String?  @db.VarChar(20)
-  address   String?  @db.Text
-  latitude  Float?
-  longitude Float?
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  users     User[]
-
-  @@map("offices")
-}
-
 model Role {
   id          String   @id @db.VarChar(100)
   name        String   @db.VarChar(100)
@@ -44,12 +29,10 @@ model User {
   address   String?  @db.Text
   isActive  Boolean  @default(true)
   roleId    String?  @db.VarChar(100)
-  officeId  String?  @db.VarChar(100)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  role   Role?   @relation(fields: [roleId], references: [id])
-  office Office? @relation(fields: [officeId], references: [id])
+  role Role? @relation(fields: [roleId], references: [id])
 
   @@map("users")
 }

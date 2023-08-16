@@ -1,6 +1,6 @@
 import { Global, Module } from '@nestjs/common';
 import { PrismaModule } from '@utils/prisma/prisma.module';
-import { DataTableService, DataTableSettings } from './DataTable.service';
+import { DataTableService, DataTableSettings } from './datatable.service';
 
 @Global()
 @Module({

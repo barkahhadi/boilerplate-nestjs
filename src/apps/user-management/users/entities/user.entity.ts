@@ -29,9 +29,6 @@ export class UserEntity implements User {
   roleId: string | null;
 
   @ApiProperty()
-  officeId: string | null;
-
-  @ApiProperty()
   createdAt: Date;
 
   @ApiProperty()

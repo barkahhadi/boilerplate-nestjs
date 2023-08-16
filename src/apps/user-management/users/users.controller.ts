@@ -28,7 +28,7 @@ import {
   Permissions,
 } from '@utils/casl/permissions.guard';
 import { JwtAuthGuard } from '@apps/auth/guards/jwt-auth.guard';
-import { DataTableDto } from '@/utils/DataTable/DataTable.dto';
+import { DataTableDto } from '@/utils/datatable/datatable.dto';
 
 @Controller('users')
 @ApiTags('Users')
